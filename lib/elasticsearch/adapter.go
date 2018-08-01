@@ -1,6 +1,7 @@
 package elasticsearch
 
 import (
+	"strings"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,7 +12,7 @@ import (
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/prompb"
 	"go.uber.org/zap"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "gopkg.in/olivere/elastic.v6" 
 )
 
 const sampleType = "sample"
@@ -189,9 +190,17 @@ func (a *Adapter) Close() error {
 
 func (a *Adapter) Write(req []*prompb.TimeSeries) error {
 	for _, ts := range req {
+		drop:=false
 		metric := make(model.Metric, len(ts.Labels))
 		for _, l := range ts.Labels {
+			if l.Name=="__name__"&&strings.Contains(l.Value,":"){
+				drop=true
+				break
+			}
 			metric[model.LabelName(l.Name)] = model.LabelValue(l.Value)
+		}
+		if drop{
+			continue
 		}
 		for _, s := range ts.Samples {
 			v := float64(s.Value)

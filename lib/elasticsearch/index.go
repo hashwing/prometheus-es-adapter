@@ -7,17 +7,17 @@ import (
 )
 
 // const sampleType = "sample"
-const activeIndexAlias = "active-prom-metrics"
-const searchIndexAlias = "search-prom-metrics"
+const activeIndexAlias = "active-prom-test-metrics"
+const searchIndexAlias = "search-prom-test-metrics"
 const activeIndexTemplate = `{
-	"template": "active-prom-metrics-*",
+	"template": "active-prom-test-metrics-*",
 	"settings": {
 		"number_of_shards":   5,
 		"number_of_replicas": 1
 	},
 	"aliases": {
-		"active-prom-metrics":  {},
-		"search-prom-metrics": {}
+		"active-prom-test-metrics":  {},
+		"search-prom-test-metrics": {}
 	},
 	"mappings":{
 		"_default_": {
@@ -46,7 +46,7 @@ const activeIndexTemplate = `{
 }`
 
 const inactiveIndexTemplate = `{
-  "template": "inactive-prom-metrics-*",
+  "template": "inactive-prom-test-metrics-*",
   "settings": {
 	"number_of_shards":   1,
 	"number_of_replicas": 0,
