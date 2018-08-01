@@ -114,8 +114,8 @@ imports:
   - status
   - tap
   - transport
-- name: gopkg.in/olivere/elastic.v5
-  version: 79ff368708b3a2a9da641dc831d95fd0782bf4ef
+- name: gopkg.in/olivere/elastic.v6
+  version: 229adca7643e572e471ea3e8e018d651b728713d
   subpackages:
   - config
   - uritemplates
