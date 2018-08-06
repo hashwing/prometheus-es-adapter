@@ -12,8 +12,8 @@ import (
 	"github.com/namsral/flag"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/prometheus/prompb"
-	"github.com/pwillie/prometheus-es-adapter/lib/elasticsearch"
-	"github.com/pwillie/prometheus-es-adapter/lib/logger"
+	"github.com/hashwing/prometheus-es-adapter/lib/elasticsearch"
+	"github.com/hashwing/prometheus-es-adapter/lib/logger"
 )
 
 // Main entry point.
@@ -22,6 +22,7 @@ func main() {
 		url           = flag.String("es_url", "http://localhost:9200", "Elasticsearch URL.")
 		user          = flag.String("es_user", "", "Elasticsearch User.")
 		pass          = flag.String("es_password", "", "Elasticsearch User Password.")
+		indexName     = flag.String("es_index_name", "prom-metrics", "Number of batch workers.")
 		workers       = flag.Int("es_workers", 0, "Number of batch workers.")
 		batchCount    = flag.Int("es_batch_count", 1000, "Max items for bulk Elasticsearch insert operation")
 		batchSize     = flag.Int("es_batch_size", 4096, "Max size in bytes for bulk Elasticsearch insert operation")
@@ -60,6 +61,7 @@ func main() {
 		elasticsearch.SetEsUrl(*url),
 		elasticsearch.SetEsUser(*user),
 		elasticsearch.SetEsPassword(*pass),
+		elasticsearch.SetIndexName(*indexName),
 		elasticsearch.SetEsIndexMaxAge(*indexMaxAge),
 		elasticsearch.SetEsIndexMaxDocs(*indexMaxDocs),
 		elasticsearch.SetWorkers(*workers),

@@ -1,6 +1,6 @@
-package: github.com/pwillie/prometheus-es-adapter
+package: github.com/hashwing/prometheus-es-adapter
 import:
-- package: gopkg.in/olivere/elastic.v5
+- package: gopkg.in/olivere/elastic.v6
 - package: github.com/google/uuid
 - package: github.com/namsral/flag
 - package: go.uber.org/zap

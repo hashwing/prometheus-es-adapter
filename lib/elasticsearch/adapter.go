@@ -32,6 +32,7 @@ type AdapterOptionFunc func(*Adapter) error
 type Adapter struct {
 	c             *elastic.Client
 	b             *elastic.BulkProcessor
+	indexName	  string
 	batchCount    int
 	batchSize     int
 	batchInterval int
@@ -93,6 +94,13 @@ func NewAdapter(logger *zap.Logger, options ...AdapterOptionFunc) (*Adapter, err
 func SetBatchCount(samples int) AdapterOptionFunc {
 	return func(a *Adapter) error {
 		a.batchCount = samples
+		return nil
+	}
+}
+
+func SetIndexName(name string)AdapterOptionFunc{
+	return func(a *Adapter) error {
+		indexName=name
 		return nil
 	}
 }
@@ -190,11 +198,11 @@ func (a *Adapter) Close() error {
 
 func (a *Adapter) Write(req []*prompb.TimeSeries) error {
 	for _, ts := range req {
-		drop:=false
+		drop:=true
 		metric := make(model.Metric, len(ts.Labels))
 		for _, l := range ts.Labels {
 			if l.Name=="__name__"&&strings.Contains(l.Value,":"){
-				drop=true
+				drop=false
 				break
 			}
 			metric[model.LabelName(l.Name)] = model.LabelValue(l.Value)
