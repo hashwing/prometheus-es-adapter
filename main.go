@@ -12,8 +12,8 @@ import (
 	"github.com/namsral/flag"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/prometheus/prompb"
-	"github.com/pwillie/prometheus-es-adapter/lib/elasticsearch"
-	"github.com/pwillie/prometheus-es-adapter/lib/logger"
+	"github.com/hashwing/prometheus-es-adapter/lib/elasticsearch"
+	"github.com/hashwing/prometheus-es-adapter/lib/logger"
 )
 
 // Main entry point.
@@ -22,12 +22,14 @@ func main() {
 		url           = flag.String("es_url", "http://localhost:9200", "Elasticsearch URL.")
 		user          = flag.String("es_user", "", "Elasticsearch User.")
 		pass          = flag.String("es_password", "", "Elasticsearch User Password.")
+		indexName     = flag.String("es_index_name", "prom-metrics", "Number of batch workers.")
 		workers       = flag.Int("es_workers", 0, "Number of batch workers.")
 		batchCount    = flag.Int("es_batch_count", 1000, "Max items for bulk Elasticsearch insert operation")
 		batchSize     = flag.Int("es_batch_size", 4096, "Max size in bytes for bulk Elasticsearch insert operation")
 		batchInterval = flag.Int("es_batch_interval", 10, "Max period in seconds between bulk Elasticsearch insert operations")
 		indexMaxAge   = flag.String("es_index_max_age", "7d", "Max age of Elasticsearch index before rollover")
 		indexMaxDocs  = flag.Int64("es_index_max_docs", 1000000, "Max number of docs in Elasticsearch index before rollover")
+		searchMaxDocs = flag.Int("es_search_max_docs", 1000, "Max number of docs returned for Elasticsearch search operation")
 		sniffEnabled  = flag.Bool("es_sniff", false, "Enable Elasticsearch sniffing")
 		listen        = flag.String("listen", ":8080", "TCP network address to listen.")
 		statsEnabled  = flag.Bool("stats", true, "Expose Prometheus metrics endpoint")
@@ -59,12 +61,14 @@ func main() {
 		elasticsearch.SetEsUrl(*url),
 		elasticsearch.SetEsUser(*user),
 		elasticsearch.SetEsPassword(*pass),
+		elasticsearch.SetIndexName(*indexName),
 		elasticsearch.SetEsIndexMaxAge(*indexMaxAge),
 		elasticsearch.SetEsIndexMaxDocs(*indexMaxDocs),
 		elasticsearch.SetWorkers(*workers),
 		elasticsearch.SetBatchCount(*batchCount),
 		elasticsearch.SetBatchSize(*batchSize),
 		elasticsearch.SetBatchInterval(*batchInterval),
+		elasticsearch.SetSearchMaxDocs(*searchMaxDocs),
 		elasticsearch.SetSniff(*sniffEnabled),
 		elasticsearch.SetStats(*statsEnabled),
 	)

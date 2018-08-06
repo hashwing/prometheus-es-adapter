@@ -1,6 +1,7 @@
 package elasticsearch
 
 import (
+	"strings"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,7 +12,7 @@ import (
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/prompb"
 	"go.uber.org/zap"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "gopkg.in/olivere/elastic.v6" 
 )
 
 const sampleType = "sample"
@@ -31,6 +32,7 @@ type AdapterOptionFunc func(*Adapter) error
 type Adapter struct {
 	c             *elastic.Client
 	b             *elastic.BulkProcessor
+	indexName	  string
 	batchCount    int
 	batchSize     int
 	batchInterval int
@@ -40,6 +42,7 @@ type Adapter struct {
 	esUser        string
 	esPassword    string
 	workers       int
+	searchMaxDocs int
 	sniff         bool
 	stats         bool
 }
@@ -95,6 +98,13 @@ func SetBatchCount(samples int) AdapterOptionFunc {
 	}
 }
 
+func SetIndexName(name string)AdapterOptionFunc{
+	return func(a *Adapter) error {
+		indexName=name
+		return nil
+	}
+}
+
 func SetBatchSize(bytes int) AdapterOptionFunc {
 	return func(a *Adapter) error {
 		a.batchSize = bytes
@@ -144,6 +154,13 @@ func SetEsIndexMaxDocs(docs int64) AdapterOptionFunc {
 	}
 }
 
+func SetSearchMaxDocs(docs int) AdapterOptionFunc {
+	return func(a *Adapter) error {
+		a.searchMaxDocs = docs
+		return nil
+	}
+}
+
 func SetSniff(enabled bool) AdapterOptionFunc {
 	return func(a *Adapter) error {
 		a.sniff = enabled
@@ -181,9 +198,17 @@ func (a *Adapter) Close() error {
 
 func (a *Adapter) Write(req []*prompb.TimeSeries) error {
 	for _, ts := range req {
+		drop:=true
 		metric := make(model.Metric, len(ts.Labels))
 		for _, l := range ts.Labels {
+			if l.Name=="__name__"&&strings.Contains(l.Value,":"){
+				drop=false
+				break
+			}
 			metric[model.LabelName(l.Name)] = model.LabelValue(l.Value)
+		}
+		if drop{
+			continue
 		}
 		for _, s := range ts.Samples {
 			v := float64(s.Value)
@@ -249,7 +274,7 @@ func (a *Adapter) buildCommand(q *prompb.Query) *elastic.SearchService {
 	// data, _ := json.Marshal(ss)
 	// log.Debug("es query", zap.String("data", string(data)))
 
-	service := a.c.Search().Index(searchIndexAlias).Type(sampleType).Query(query).Size(1000).Sort("timestamp", true)
+	service := a.c.Search().Index(searchIndexAlias).Type(sampleType).Query(query).Size(a.searchMaxDocs).Sort("timestamp", true)
 	return service
 }
 

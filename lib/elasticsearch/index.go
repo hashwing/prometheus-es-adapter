@@ -6,18 +6,20 @@ import (
 	"go.uber.org/zap"
 )
 
+var indexName = "prom-metrics"
+
 // const sampleType = "sample"
-const activeIndexAlias = "active-prom-metrics"
-const searchIndexAlias = "search-prom-metrics"
-const activeIndexTemplate = `{
-	"template": "active-prom-metrics-*",
+var activeIndexAlias = "active-"+indexName
+var searchIndexAlias = "search-"+indexName
+var activeIndexTemplate = `{
+	"template": "active-`+indexName+`-*",
 	"settings": {
 		"number_of_shards":   5,
 		"number_of_replicas": 1
 	},
 	"aliases": {
-		"active-prom-metrics":  {},
-		"search-prom-metrics": {}
+		"active-`+indexName+`":  {},
+		"search-`+indexName+`": {}
 	},
 	"mappings":{
 		"_default_": {
@@ -45,8 +47,8 @@ const activeIndexTemplate = `{
 	}
 }`
 
-const inactiveIndexTemplate = `{
-  "template": "inactive-prom-metrics-*",
+var inactiveIndexTemplate = `{
+  "template": "inactive-`+indexName+`-*",
   "settings": {
 	"number_of_shards":   1,
 	"number_of_replicas": 0,
